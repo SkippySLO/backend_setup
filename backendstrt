@@ -5,13 +5,13 @@ set -e  # Exit on error
 # Update & install essentials
 echo "Updating system and installing essentials..."
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl git unzip jq build-essential software-properties-common
+sudo apt install -y curl git unzip jq build-essential software-properties-common python3 python3-pip python3-venv
 
 # Install Node.js & npm
 if ! command -v node &> /dev/null
 then
     echo "Installing Node.js and npm..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt install -y nodejs
 fi
 
@@ -20,9 +20,40 @@ echo "Installing Yarn and PM2..."
 npm install -g yarn pm2
 
 # Install Python & Pip
-echo "Installing Python & Pip..."
-sudo apt install -y python3 python3-pip
-pip3 install --upgrade pip
+echo "Setting up Python environment..."
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+
+# Install Python Dependencies
+echo "Installing Python dependencies..."
+cat <<EOL > requirements.txt
+fastapi
+uvicorn
+pydantic
+web3
+solana
+py-solc-x
+eth-brownie
+eth-hash
+sqlalchemy
+asyncpg
+psycopg2-binary
+firebase-admin
+transformers
+openai
+numpy
+pandas
+scipy
+scikit-learn
+opencv-python
+ffmpeg-python
+moviepy
+bcrypt
+pyjwt
+cryptography
+EOL
+pip install -r requirements.txt
 
 # Install Rust
 if ! command -v rustc &> /dev/null
@@ -88,5 +119,8 @@ sudo apt install -y prometheus grafana loki
 # Clean up
 echo "Cleaning up..."
 sudo apt autoremove -y
+
+# Deactivate virtual environment
+deactivate
 
 echo "Setup completed successfully!"
